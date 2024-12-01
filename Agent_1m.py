@@ -2,14 +2,6 @@ from utils import TradingAgent
 
 class Agent_1m(TradingAgent):
     """Trading Agent for 1-minute interval."""
-    def generate_signals(self, data):
-        """Generate random signals for 1-minute interval."""
-        import random
-        return random.choice([-1, 0, 1])  # Randomly decide to Buy, Sell, or Hold
-    
-'''
-class TradingAgent:
-    """Base class for trading agents."""
     def __init__(self, initial_cash=100000):
         self.initial_cash = initial_cash
         self.cash = initial_cash
@@ -52,13 +44,3 @@ class MovingAverageCrossoverAgent(TradingAgent):
         super().__init__(initial_cash)
         self.short_window = short_window
         self.long_window = long_window
-
-    def generate_signals(self, data):
-        data['SMA50'] = data['Close'].rolling(window=self.short_window).mean()
-        data['SMA200'] = data['Close'].rolling(window=self.long_window).mean()
-        if data['SMA50'].iloc[-1] > data['SMA200'].iloc[-1]:
-            return 1  # Buy signal
-        elif data['SMA50'].iloc[-1] < data['SMA200'].iloc[-1]:
-            return -1  # Sell signal
-        return 0  # Hold
-'''
