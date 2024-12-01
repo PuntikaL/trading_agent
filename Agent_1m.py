@@ -1,46 +1,46 @@
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import StandardScaler
 from utils import TradingAgent
 
 class Agent_1m(TradingAgent):
-    """Trading Agent for 1-minute interval."""
+    """1m agent with linear regression"""
+    
     def __init__(self, initial_cash=100000):
-        self.initial_cash = initial_cash
-        self.cash = initial_cash
-        self.position = 0  # Number of units of the asset
-        self.history = []  # To store trade history
-
-    def generate_signals(self, data):
-        """Generate trading signals. To be implemented by subclasses."""
-        raise NotImplementedError
-
-    def trade(self, price, signal):
-        """Execute trades based on the signal."""
-        if signal == 1:  # Buy
-            self.position += self.cash / price
-            self.cash = 0
-            self.history.append(f"Buy at {price}")
-        elif signal == -1:  # Sell
-            self.cash += self.position * price
-            self.position = 0
-            self.history.append(f"Sell at {price}")
-        # Hold: Do nothing
-        self.history.append(f"Hold at {price}")
-
-    def get_portfolio_value(self, price):
-        """Calculate total portfolio value."""
-        return self.cash + (self.position * price)
-
-
-class DummyAgent(TradingAgent):
-    """Dummy agent implementing a simple random strategy."""
-    def generate_signals(self, data):
-        """Generate random signals."""
-        import random
-        return random.choice([-1, 0, 1])  # Randomly decide to Buy, Sell, or Hold
-
-
-# example of MovingAverageCrossoverAgent
-class MovingAverageCrossoverAgent(TradingAgent):
-    def __init__(self, short_window=50, long_window=200, initial_cash=100000):
         super().__init__(initial_cash)
-        self.short_window = short_window
-        self.long_window = long_window
+        self.model = LinearRegression()
+        self.scaler = StandardScaler()
+        self.trained = False
+        self.feature_columns = []
+
+    def train_model(self, training_data, feature_columns, target_column):
+        """Train the Linear Regression model."""
+        self.feature_columns = feature_columns
+        features = training_data[feature_columns]
+        target = training_data[target_column]
+        features_scaled = self.scaler.fit_transform(features)
+        self.model.fit(features_scaled, target)
+        self.trained = True
+
+    def generate_signals(self, row):
+        """Generate trading signals based on predictions."""
+        if not self.trained:
+            raise ValueError("Model has not been trained. Call train_model() before using the agent.")
+
+        # Here we are converting the current row into a DataFrame with feature names
+        current_features = pd.DataFrame([row[self.feature_columns]], columns=self.feature_columns)
+        
+        # Here i scale features
+        scaled_features = self.scaler.transform(current_features)
+        
+        # In order to predict the next price
+        predicted_price = self.model.predict(scaled_features)[0]
+        current_price = row['close']
+
+        # Here we generate signals based on predicted price
+        if predicted_price > current_price:
+            return 1  # Buy
+        elif predicted_price < current_price:
+            return -1  # Sell
+        return 0  # Hold

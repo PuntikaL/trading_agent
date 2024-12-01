@@ -21,6 +21,15 @@ agent_1m = Agent_1m()
 agent_1h = Agent_1h()
 agent_1d = Agent_1d()
 
+# Prepare data for Agent_1m (Linear Regression)
+df_1m['target'] = df_1m['close'].shift(-1)  # Predict next close price
+feature_columns = ['open', 'high', 'low', 'close', 'volume']  # Features for training
+df_1m.dropna(inplace=True)  # Drop rows with NaN values due to target shift
+
+# Training the Agent_1m (Linear Regression)
+agent_1m.train_model(df_1m, feature_columns, target_column='target')
+
+# Prepare data for Agent_1d
 df_1d['SMA_short'] = df_1d['close'].rolling(window=agent_1d.short_window).mean()
 df_1d['SMA_long'] = df_1d['close'].rolling(window=agent_1d.long_window).mean()
 
