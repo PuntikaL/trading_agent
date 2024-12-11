@@ -3,7 +3,7 @@ from utils import *
 class Agent_1d(TradingAgent):
     """Agent that trades on daily intervals using various technical indicators."""
 
-    def __init__(self, short_window=20, long_window=50, initial_cash=100000):
+    def __init__(self, short_window=200, long_window=500, initial_cash=100000):
         super().__init__(initial_cash)
         self.short_window = short_window
         self.long_window = long_window
