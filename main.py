@@ -3,10 +3,7 @@ from Agent_1h import Agent_1h
 from Agent_1d import Agent_1d
 from Agent_pca_1d import PCAAgent
 from utils import *
-import backtrader as bt
-from backtesting import Strategy
-from backtesting import Backtest
-from Agent_sf_1d import Agent_1d_stoch_fib
+
 '''
 def backtest(agent, data):
     """Backtest a trading agent."""
