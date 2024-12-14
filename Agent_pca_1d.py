@@ -17,8 +17,9 @@ class PCAAgent(TradingAgent):
 
     def compute_rolling(self, data):
         features = data[['close']].values
+        #Not enough data
         if len(features) < self.short_window:
-            return None  # Not enough data for PCA
+            return None
         rolling_features = np.array(
             [features[i:i + self.short_window] for i in range(len(features) - self.short_window + 1)]
         )
@@ -31,7 +32,7 @@ class PCAAgent(TradingAgent):
             self.short_window = math.floor(0.1 * data_point)
         data = data.copy()
         data['Next_Close'] = data['close'].shift(-1)
-        data['Target'] = np.where(data['Next_Close'] > data['close'], 1, -1)
+        data['pred_sign'] = np.where(data['Next_Close'] > data['close'], 1, -1)
         data.dropna(inplace=True)
 
         rolling_features = self.compute_rolling(data)
@@ -40,9 +41,9 @@ class PCAAgent(TradingAgent):
 
         # Fit PCA with rolling features
         pca_features = self.pca.fit_transform(rolling_features)
-        target = data['Target'].iloc[self.short_window - 1:].values
+        sign = data['pred_sign'].iloc[self.short_window - 1:].values
 
-        X_train, X_test, y_train, y_test = train_test_split(pca_features, target, test_size=0.2, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(pca_features, sign, test_size=0.2, random_state=42)
         self.model.fit(X_train, y_train)
 
         y_pred = self.model.predict(X_test)
@@ -58,8 +59,9 @@ class PCAAgent(TradingAgent):
         if len(self.rolling_window) > self.short_window:
             self.rolling_window.pop(0)
 
+        # Not enough data for prediction
         if len(self.rolling_window) < self.short_window:
-            return 0  # Not enough data for prediction
+            return 0
 
         rolling_features = np.array(self.rolling_window).reshape(1, -1)
 
@@ -71,7 +73,8 @@ class PCAAgent(TradingAgent):
         pca_features = self.pca.transform(rolling_features)
         prediction = self.model.predict(pca_features)[0]
 
+        # 1 buy -1 sell
         if prediction == 1:
-            return 1  # Buy signal
+            return 1
         else:
-            return -1  # Sell signal
+            return -1
