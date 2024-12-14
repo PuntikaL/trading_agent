@@ -6,10 +6,6 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 
 class PCAAgent(TradingAgent):
-    """
-    Agent that uses Principal Component Analysis (PCA) on rolling windows of close prices 
-    to generate trading signals.
-    """
     def __init__(self, short_window=200, long_window=500, initial_cash=100000, n_components=3):
         super().__init__(initial_cash)
         self.short_window = short_window
@@ -19,7 +15,6 @@ class PCAAgent(TradingAgent):
         self.model = RandomForestClassifier(n_estimators=100, random_state=42)
 
     def compute_rolling(self, data):
-        """Compute rolling features for PCA."""
         features = data[['close']].values
         if len(features) < self.short_window:
             return None  # Not enough data for PCA
@@ -30,10 +25,9 @@ class PCAAgent(TradingAgent):
         return rolling_features
 
     def train(self, data):
-        """Train the model using PCA-transformed rolling features."""
         data = data.copy()
         data['Next_Close'] = data['close'].shift(-1)
-        data['Target'] = np.where(data['Next_Close'] > data['close'], 1, 2)  # 1: Buy, 2: Sell
+        data['Target'] = np.where(data['Next_Close'] > data['close'], 1, -1)
         data.dropna(inplace=True)
 
         rolling_features = self.compute_rolling(data)
@@ -52,17 +46,6 @@ class PCAAgent(TradingAgent):
         print(f"Accuracy: {accuracy:.2f}")
 
     def generate_signals(self, row):
-        """
-        Generate trading signals based on the latest rolling window of data.
-        
-        Parameters:
-        - row: A single row of data passed during backtesting.
-        
-        Returns:
-        - 1: Buy signal
-        - 2: Sell signal
-        - 0: No signal (if insufficient data)
-        """
         if not hasattr(self, 'rolling_window'):
             self.rolling_window = []
 
@@ -87,4 +70,4 @@ class PCAAgent(TradingAgent):
         if prediction == 1:
             return 1  # Buy signal
         else:
-            return 2  # Sell signal
+            return -1  # Sell signal
