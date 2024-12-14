@@ -1,4 +1,5 @@
 from utils import *
+import math
 
 class Agent_1d(TradingAgent):
 
@@ -8,6 +9,10 @@ class Agent_1d(TradingAgent):
         self.long_window = long_window
 
     def add_technical_indicators(self, df_1d):
+        if len(df_1d) < 2000:
+            self.short_window = math.floor(0.9 * len(df_1d))
+            self.long_window = self.short_window + (self.short_window / 2)
+
         df_1d['SMA_short'] = df_1d['close'].rolling(window=self.short_window).mean()
         df_1d['SMA_long'] = df_1d['close'].rolling(window=self.long_window).mean()
 
