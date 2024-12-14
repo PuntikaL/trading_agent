@@ -13,7 +13,6 @@ pio.renderers.default = "notebook"
 tqdm.pandas()
 
 class TradingAgent:
-    """Base class for trading agents."""
     def __init__(self, initial_cash=100000):
         self.initial_cash = initial_cash
         self.cash = initial_cash
@@ -21,11 +20,9 @@ class TradingAgent:
         self.history = []  # To store trade history
 
     def generate_signals(self, data):
-        """Generate trading signals. To be implemented by subclasses."""
         raise NotImplementedError
 
     def trade(self, price, signal):
-        """Execute trades based on the signal."""
         if signal == 1:  # Buy
             self.position += self.cash / price
             self.cash = 0
@@ -38,11 +35,9 @@ class TradingAgent:
         self.history.append(f"Hold at {price}")
 
     def get_portfolio_value(self, price):
-        """Calculate total portfolio value."""
         return self.cash + (self.position * price)
 
 def fetch_historical_data(symbol, interval, limit=1000):
-    """Fetch historical data from Binance API."""
     url = f'https://api.binance.com/api/v3/klines?symbol={symbol}&interval={interval}&limit={limit}'
     response = requests.get(url)
     data = response.json()
@@ -55,7 +50,6 @@ def fetch_historical_data(symbol, interval, limit=1000):
     return df
 
 def calculate_performance_metrics(initial_cash, final_value):
-    """Calculate performance metrics."""
     total_return = (final_value - initial_cash) / initial_cash
     return {"Total Return": total_return}
 
@@ -91,16 +85,6 @@ def add_total_signal(df):
     return df
 
 def add_pointpos_column(df, signal_column):
-    """
-    Adds a 'pointpos' column to the DataFrame to indicate the position of support and resistance points.
-    
-    Parameters:
-    df (DataFrame): DataFrame containing the stock data with the specified SR column, 'Low', and 'High' columns.
-    sr_column (str): The name of the column to consider for the SR (support/resistance) points.
-    
-    Returns:
-    DataFrame: The original DataFrame with an additional 'pointpos' column.
-    """
     def pointpos(row):
         if row[signal_column] == 2:
             return row['low'] - 1e-4
@@ -204,33 +188,21 @@ def plot_candlestick_with_signals(df, start_index, num_rows):
 
 
 def add_rsi(df, period=14):
-    """
-    Adds RSI to the DataFrame.
-    """
     df['RSI'] = ta.rsi(df['close'], length=period)
     return df
 
 def add_moving_averages(df, short_window=10, long_window=50):
-    """
-    Adds short and long moving averages to the DataFrame.
-    """
     df['MA_Short'] = df['close'].rolling(window=short_window).mean()
     df['MA_Long'] = df['close'].rolling(window=long_window).mean()
     return df
 
 def add_bollinger_bands(df, period=20, std_dev=2):
-    """
-    Adds Bollinger Bands to the DataFrame.
-    """
     df['BB_Middle'] = df['close'].rolling(window=period).mean()
     df['BB_Upper'] = df['BB_Middle'] + (std_dev * df['close'].rolling(window=period).std())
     df['BB_Lower'] = df['BB_Middle'] - (std_dev * df['close'].rolling(window=period).std())
     return df
 
 def enhanced_signal(df, current_candle):
-    """
-    Combines candlestick signals with RSI and moving average conditions.
-    """
     current_pos = df.index.get_loc(current_candle)
     base_signal = total_signal(df, current_candle)
     
@@ -263,8 +235,35 @@ def enhanced_signal(df, current_candle):
     return 0  # No signal
 
 def add_enhanced_signal(df):
-    """
-    Adds an enhanced signal column based on candlestick patterns and technical indicators.
-    """
     df['EnhancedSignal'] = df.progress_apply(lambda row: enhanced_signal(df, row.name), axis=1)
     return df
+
+def calculate_sharpe_ratio(returns, risk_free_rate=0.0):
+    returns = np.array(returns)
+    excess_returns = returns - risk_free_rate
+    avg_excess_return = np.mean(excess_returns)
+    std_dev_returns = np.std(returns)
+    
+    if std_dev_returns == 0:
+        return 0  # Return 0 if no variability in returns to avoid division by zero
+    
+    sharpe_ratio = avg_excess_return / std_dev_returns
+    return sharpe_ratio
+
+def calculate_max_loss(initial_cash, portfolio_values):
+    max_value = initial_cash  # Set the initial portfolio value to initial cash
+    max_loss = 0  # To track the maximum loss
+
+    for value in portfolio_values:
+        # Update the peak portfolio value
+        if value > max_value:
+            max_value = value
+
+        # Calculate the potential drawdown (loss from peak value)
+        drawdown = max_value - value
+
+        # Update the maximum loss
+        if drawdown > max_loss:
+            max_loss = drawdown
+
+    return max_loss
