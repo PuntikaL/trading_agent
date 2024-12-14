@@ -4,6 +4,7 @@ from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 import numpy as np
+import math
 
 class PCAAgent(TradingAgent):
     def __init__(self, short_window=200, long_window=500, initial_cash=100000, n_components=3):
@@ -25,6 +26,9 @@ class PCAAgent(TradingAgent):
         return rolling_features
 
     def train(self, data):
+        data_point = len(data)
+        if(data_point < 2000):
+            self.short_window = math.floor(0.1 * data_point)
         data = data.copy()
         data['Next_Close'] = data['close'].shift(-1)
         data['Target'] = np.where(data['Next_Close'] > data['close'], 1, -1)
