@@ -216,21 +216,21 @@ def enhanced_signal(df, current_candle):
     
     # Adjust signal with RSI
     if base_signal == 2 and rsi < 30:  # Buy signal
-        return 2
-    elif base_signal == 1 and rsi > 70:  # Sell signal
         return 1
+    elif base_signal == 1 and rsi > 70:  # Sell signal
+        return -1
     
     # Adjust signal with Moving Averages
     if base_signal == 2 and ma_short > ma_long:  # Confirm uptrend
-        return 2
-    elif base_signal == 1 and ma_short < ma_long:  # Confirm downtrend
         return 1
+    elif base_signal == 1 and ma_short < ma_long:  # Confirm downtrend
+        return -1
 
     # Adjust signal with Bollinger Bands
     if base_signal == 2 and price < bb_lower:  # Oversold
-        return 2
-    elif base_signal == 1 and price > bb_upper:  # Overbought
         return 1
+    elif base_signal == 1 and price > bb_upper:  # Overbought
+        return -1
 
     return 0  # No signal
 
