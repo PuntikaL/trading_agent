@@ -7,7 +7,7 @@ from utils import TradingAgent  # Assuming TradingAgent is defined elsewhere
 class SARSA_Agent_1d(TradingAgent):
     """1-day SARSA agent with linear regression for signal generation."""
     
-    def __init__(self, initial_cash=100000, alpha=0.1, gamma=0.9, epsilon=0.1):
+    def __init__(self, initial_cash=100000, alpha=0.001, gamma=0.9, epsilon=0.5):
         super().__init__(initial_cash)
         self.model = LinearRegression()
         self.scaler = StandardScaler()
@@ -57,7 +57,7 @@ class SARSA_Agent_1d(TradingAgent):
         next_q_value = self.q_table.get(next_state, np.zeros(3))[next_action]
         self.q_table[state][action] = current_q_value + self.alpha * (reward + self.gamma * next_q_value - current_q_value)
 
-    def train(self, data, episodes=1000):
+    def train(self, data, episodes=1500):
         """Train the agent using SARSA."""
         for episode in range(episodes):
             state = self.get_state(data.iloc[0])  # Initial state

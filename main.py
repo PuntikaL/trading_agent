@@ -71,8 +71,8 @@ df_1d['target'] = df_1d['close'].shift(-1)  # Predict next close price
 df_1d.dropna(inplace=True)
 agent_1d_pca.train(df_1d)
 agent_1d_RL.train_model(df_1d, feature_columns, target_column='target')
-#agent_1d_VPA.train()
-#agent_1d_VPA.scaler.fit(df_1d[agent_1d_VPA.feature_columns].values)
+agent_1d_VPA.train()
+agent_1d_VPA.scaler.fit(df_1d[feature_columns].values)
 
 import pandas_ta as ta
 

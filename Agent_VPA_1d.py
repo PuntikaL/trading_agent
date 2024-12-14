@@ -4,7 +4,7 @@ from keras import layers
 from sklearn.preprocessing import StandardScaler
 
 class VanillaPolicyGradientAgent:
-    def __init__(self, state_size=5, action_size=3, learning_rate=0.1, gamma=0.99, initial_cash=100000):
+    def __init__(self, state_size=5, action_size=3, learning_rate=0.01, gamma=0.99, initial_cash=100000):
         self.state_size = state_size
         self.action_size = action_size
         self.learning_rate = learning_rate
@@ -32,7 +32,7 @@ class VanillaPolicyGradientAgent:
         """Build the policy network."""
         model = tf.keras.Sequential([
             layers.Input(shape=(self.state_size,)),
-            layers.Dense(64, activation='relu'),
+            layers.Dense(128, activation='relu'),
             layers.Dense(64, activation='relu'),
             layers.Dense(self.action_size, activation='softmax')  # Output action probabilities
         ])
