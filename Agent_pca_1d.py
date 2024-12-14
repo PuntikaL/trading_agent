@@ -1,10 +1,15 @@
 from utils import TradingAgent
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
+from sklearn.tree import DecisionTreeClassifier
+import xgboost as xgb
 import numpy as np
 import math
+
 
 class PCAAgent(TradingAgent):
     def __init__(self, short_window=200, long_window=500, initial_cash=100000, n_components=3):
@@ -13,7 +18,10 @@ class PCAAgent(TradingAgent):
         self.long_window = long_window
         self.n_components = n_components
         self.pca = PCA(n_components=n_components)
-        self.model = RandomForestClassifier(n_estimators=100, random_state=42)
+        self.model = RandomForestClassifier(n_estimators=70, random_state=42)
+        #self.model = LogisticRegression(random_state=42)
+        #self.model = SVC(kernel='rbf', random_state=42)
+        #self.model = DecisionTreeClassifier(random_state=42)
 
     def compute_rolling(self, data):
         features = data[['close']].values
