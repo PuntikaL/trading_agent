@@ -98,7 +98,7 @@ class VanillaPolicyGradientAgent:
         """Calculate the reward based on the action taken."""
         if action == 1:  # Buy
             return row['close'] - row['open']  # Profit/loss from buying
-        elif action == 2:  # Sell
+        elif action == -1:  # Sell
             return row['open'] - row['close']  # Profit/loss from selling
         else:  # Hold
             return 0  # No reward for holding
