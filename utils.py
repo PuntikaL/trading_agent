@@ -267,3 +267,20 @@ def calculate_max_loss(initial_cash, portfolio_values):
             max_loss = drawdown
 
     return max_loss
+
+def calculate_risk_ratio(entry_price, data, stop_loss_multiplier=1, take_profit_multiplier=2, window=14):
+    data['ATR'] = ta.atr(data['high'], data['low'], data['close'], length=window)
+    
+    # Get the most recent ATR value
+    latest_atr = data['ATR'].iloc[-1]
+    
+    # Dynamic stop-loss and take-profit prices
+    stop_loss_price = entry_price - (latest_atr * stop_loss_multiplier)
+    take_profit_price = entry_price + (latest_atr * take_profit_multiplier)
+
+    # Risk ratio calculation
+    stop_loss_distance = entry_price - stop_loss_price
+    take_profit_distance = take_profit_price - entry_price
+    risk_ratio = take_profit_distance / stop_loss_distance
+
+    return stop_loss_price, take_profit_price, risk_ratio
