@@ -12,10 +12,9 @@ import math
 
 
 class PCAAgent(TradingAgent):
-    def __init__(self, short_window=200, long_window=500, initial_cash=100000, n_components=3):
+    def __init__(self, short_window=200, initial_cash=100000, n_components=3):
         super().__init__(initial_cash)
         self.short_window = short_window
-        self.long_window = long_window
         self.n_components = n_components
         self.pca = PCA(n_components=n_components)
         self.model = RandomForestClassifier(n_estimators=70, random_state=42)
